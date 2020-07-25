@@ -6,74 +6,88 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import com.opencsv.bean.CsvBindByPosition;
+import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvDate;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @Document
+@ToString
 public class CovidData {
 
 	@Id
 	private String _id;
 
-	@CsvBindByPosition(position = 0)
+	@CsvBindByName(column = "fips")
 	@Field(value = "FIPS")
 	private String FIPS;
 
-	@CsvBindByPosition(position = 1)
-	@Field(value = "Admin2")
-	private String Admin2;
-
-	@CsvBindByPosition(position = 2)
+	@CsvBindByName(column = "Province_State")
 	@Field(value = "provinceState")
 	private String provinceState;
 
-	@CsvBindByPosition(position = 3)
+	@CsvBindByName(column = "Country_Region")
 	@Field(value = "countryRegion")
 	private String countryRegion;
 
 	@CsvDate(value = "yyyy-mm-dd HH:mm:ss")
-	@CsvBindByPosition(position = 4)
+	@CsvBindByName(column = "Last_Update")
 	@Field(value = "lastUpdate")
 	private Date lastUpdate;
 
-	@CsvBindByPosition(position = 5)
+	@CsvBindByName(column = "Lat")
 	@Field(value = "latitude")
 	private Double latitude;
 
-	@CsvBindByPosition(position = 6)
+	@CsvBindByName(column = "Long_")
 	@Field(value = "longitude")
 	private Double longitude;
 
-	@CsvBindByPosition(position = 7)
+	@CsvBindByName(column = "Confirmed")
 	@Field(value = "confirmed")
-	private Long confirmed;
+	private Double confirmed = 0.0;
 
-	@CsvBindByPosition(position = 8)
+	@CsvBindByName(column = "Deaths")
 	@Field(value = "deaths")
-	private Integer deaths;
+	private Double deaths = 0.0;
 
-	@CsvBindByPosition(position = 9)
+	@CsvBindByName(column = "Recovered")
 	@Field(value = "recovered")
-	private Integer recovered;
+	private Double recovered = 0.0;
 
-	@CsvBindByPosition(position = 10)
+	@CsvBindByName(column = "Active")
 	@Field(value = "active")
-	private Integer active;
+	private Double active = 0.0;
 
-	@CsvBindByPosition(position = 11)
-	@Field(value = "combinedKey")
-	private String combinedKey;
-
-	@CsvBindByPosition(position = 12)
+	@CsvBindByName(column = "Incidence_Rate")
 	@Field(value = "incidenceRate")
-	private Float incidenceRate;
+	private Double incidenceRate = 0.0;
 
-	@CsvBindByPosition(position = 13)
+	@CsvBindByName(column = "Incident_Rate")
+	@Field(value = "incidentRate")
+	private Double incidentRate = 0.0;
+
+	@CsvBindByName(column = "Case-Fatality_Ratio")
 	@Field(value = "fatalityRatio")
-	private Float fatalityRatio;
+	private Double fatalityRatio = 0.0;
+
+	@CsvBindByName(column = "Testing_Rate")
+	@Field(value = "testingRate")
+	private Double testingRate = 0.0;
+
+	@CsvBindByName(column = "Hospitalization_Rate")
+	@Field(value = "hospitalizationRate")
+	private Double hospitalizationRate = 0.0;
+
+	@CsvBindByName(column = "People_Tested")
+	@Field(value = "peopleTested")
+	private Double peopleTested = 0.0;
+
+	@CsvBindByName(column = "People_Hospitalized")
+	@Field(value = "peopleHospitalized")
+	private Double peopleHospitalized = 0.0;
 }

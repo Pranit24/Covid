@@ -50,4 +50,11 @@ public interface CovidRepositoryCustomFunctions {
 	 * @return
 	 */
 	List<CovidData> findByRegion(String region, String collectionName);
+
+	/**
+	 * Check if collection exists
+	 * 
+	 * @param collectionName
+	 */
+	boolean checkCollection(String date);
 }
