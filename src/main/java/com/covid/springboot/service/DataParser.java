@@ -6,21 +6,20 @@ import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.covid.springboot.model.CovidData;
 import com.covid.springboot.repository.CovidRepository;
+import com.covid.springboot.util.Helper;
 import com.opencsv.CSVReader;
+import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
+import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 
 // TODO runs at a given time to fetch latest data
 /**
@@ -33,18 +32,21 @@ public class DataParser {
 	@Autowired
 	private CovidRepository covidRepository;
 
+	@Autowired
+	private CovidService covidService;
+
+	private int i = 0;
+
 	/**
 	 * Gets all the CSV data using the specified date from John Hopkins github
 	 * 
 	 * @param date
 	 * @return List<String> of CSV data
 	 */
-	public List<String> getData(String date) {
+	private List<String> getData(String date, String link) {
 		List<String> list = new ArrayList<>();
 		try {
-			URL url = new URL(
-					"https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/"
-							+ date + ".csv");
+			URL url = new URL(link + date + ".csv");
 
 			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 			connection.setRequestMethod("GET");
@@ -63,43 +65,78 @@ public class DataParser {
 		return list;
 	}
 
-	private List<String> getLatestData() {
-		return getData(getYesterdayDate());
+	/**
+	 * 
+	 * Take csv data and collection and add the data to MongoDb collection
+	 * 
+	 * @param list
+	 * @param date - Date of the data and the collection name
+	 * @return - return false if error in adding data
+	 */
+	private boolean addDataToMongo(List<String> list, String date, boolean skipUS) {
+		// drop first row which has the csv column information
+		System.out.println("Adding latest data to MongoDb collection " + date + " ...");
+		final HeaderColumnNameMappingStrategy<CovidData> strategy = new HeaderColumnNameMappingStrategy<>();
+		strategy.setType(CovidData.class);
+		String csv = String.join("\n", list);
+		try {
+//			CsvToBeanBuilder<CovidData> beanBuilder = new CsvToBeanBuilder<>(new CSVReader(new StringReader(csv)));
+			CsvToBean<CovidData> csvToBean = new CsvToBeanBuilder<CovidData>(new CSVReader(new StringReader(csv)))
+					.withMappingStrategy(strategy).build();
+//			beanBuilder.withType(CovidData.class);
+			// build methods returns a list of Beans
+//			List<CovidData> covidData = beanBuilder.build().parse(); 
+			List<CovidData> covidData = csvToBean.parse();
+			for (CovidData data : covidData) {
+				if (skipUS && data.getCountryRegion().equals("US"))
+					continue;
+				data.set_id(String.valueOf(this.i++));
+				covidRepository.save(data, date);
+			}
+		} catch (Exception e) {
+			System.out.println("Error adding data to mongodb collection " + date);
+			System.out.println(e);
+			return false;
+		}
+		System.out.println("Done updating mongodb collection " + date + "!");
+		return true;
 	}
 
 	/**
 	 * Convert CSV file to Model class and save it in MongoDb
 	 */
-	public void convertCSVToBean() {
-
-		List<String> list = getLatestData();
-		// drop first row which has the csv column information
-		list.remove(0);
-		int i = 0;
-		for (String row : list) {
-			CsvToBeanBuilder<CovidData> beanBuilder = new CsvToBeanBuilder<>(new CSVReader(new StringReader(row)));
-
-			beanBuilder.withType(CovidData.class);
-			// build methods returns a list of Beans
-			CovidData data = beanBuilder.build().parse().get(0);
-			data.set_id(String.valueOf(i++));
-			covidRepository.save(data, getYesterdayDate());
-			break;
+	private boolean convertCSVToBean(String date) {
+		if (covidRepository.checkCollection(date))
+			return false;
+		String link = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/";
+		List<String> list = getData(date, link);
+		try {
+			addDataToMongo(list, date, true);
+		} catch (Exception e) {
+			return false;
 		}
+		String usLink = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports_us/";
+		List<String> usList = getData(date, usLink);
+		try {
+			addDataToMongo(usList, date, false);
+		} catch (
 
+		Exception e) {
+			return false;
+		}
+		return true;
 	}
 
-	/**
-	 * HELPER FUNCTION - Used to get the yesterday's date
-	 * 
-	 * @return String - yesterday's date which has the most updated information
-	 */
-	public String getYesterdayDate() {
-		Instant yesterday = Instant.now().minus(1, ChronoUnit.DAYS);
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yyyy").withLocale(Locale.US)
-				.withZone(ZoneId.systemDefault());
-		String date = formatter.format(yesterday);
-		return date;
+	@Scheduled(fixedDelay = 500000)
+//	@Scheduled(zone = "GMT+0:00", cron = "0 20 5 * * ?")
+	private void getLatestData() {
+		String latestDate = Helper.getYesterdayDate();
+//		String latestDate = "07-21-2020";
+		System.out.println("Getting latest data " + latestDate);
+		if (convertCSVToBean(latestDate)) {
+			covidService.setLatestDate(latestDate);
+		}
+
 	}
 
 }

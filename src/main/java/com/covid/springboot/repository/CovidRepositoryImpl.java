@@ -1,6 +1,7 @@
 package com.covid.springboot.repository;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -20,6 +21,7 @@ public class CovidRepositoryImpl implements CovidRepositoryCustomFunctions {
 	private MongoTemplate mongoTemplate;
 
 	/**
+	 * 
 	 * Create a new collection if it doesn't exist
 	 * 
 	 * @param collectionName
@@ -28,6 +30,17 @@ public class CovidRepositoryImpl implements CovidRepositoryCustomFunctions {
 		if (!mongoTemplate.getCollectionNames().contains(collectionName)) {
 			mongoTemplate.createCollection(collectionName);
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean checkCollection(String collectionName) {
+		System.out.println(collectionName);
+		if (!mongoTemplate.getCollectionNames().contains(collectionName)) {
+			return false;
+		}
+		return true;
 	}
 
 	/**
@@ -54,7 +67,8 @@ public class CovidRepositoryImpl implements CovidRepositoryCustomFunctions {
 	 */
 	@Override
 	public List<CovidData> findByCountry(String country, String collectionName) {
-		Query query = new Query(Criteria.where("countryRegion").regex(country, "i"));
+		Query query = new Query(Criteria.where("countryRegion")
+				.regex(Pattern.compile("\\b(" + country + ")\\b", Pattern.CASE_INSENSITIVE)));
 		return mongoTemplate.find(query, CovidData.class, collectionName);
 	}
 
@@ -64,8 +78,10 @@ public class CovidRepositoryImpl implements CovidRepositoryCustomFunctions {
 	@Override
 	public List<CovidData> findByState(String country, String state, String collectionName) {
 
-		Query query = new Query(Criteria.where("countryRegion").regex(country, "i")
-				.andOperator(Criteria.where("provinceState").regex(state, "i")));
+		Query query = new Query(Criteria.where("countryRegion")
+				.regex(Pattern.compile("\\b(" + country + ")\\b", Pattern.CASE_INSENSITIVE))
+				.andOperator(Criteria.where("provinceState")
+						.regex(Pattern.compile("\\b(" + state + ")\\b", Pattern.CASE_INSENSITIVE))));
 		return mongoTemplate.find(query, CovidData.class, collectionName);
 	}
 
@@ -74,8 +90,9 @@ public class CovidRepositoryImpl implements CovidRepositoryCustomFunctions {
 	 */
 	@Override
 	public List<CovidData> findByRegion(String region, String collectionName) {
-		Query query = new Query(Criteria.where("countryRegion").regex("US", "i")
-				.andOperator(Criteria.where("Admin2").regex(region, "i")));
+		Query query = new Query(Criteria.where("countryRegion")
+				.regex(Pattern.compile("\\b()\\b", Pattern.CASE_INSENSITIVE)).andOperator(Criteria.where("Admin2")
+						.regex(Pattern.compile("\\b(" + region + ")\\b", Pattern.CASE_INSENSITIVE))));
 		return mongoTemplate.find(query, CovidData.class, collectionName);
 	}
 
