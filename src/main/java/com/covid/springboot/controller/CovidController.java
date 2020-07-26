@@ -21,7 +21,7 @@ public class CovidController {
 
 	@RequestMapping("/all")
 	public List<CovidData> getLatestData() {
-		return covidService.getData(false);
+		return covidService.getData(true);
 	}
 
 	// TODO handle bad requests

@@ -35,19 +35,18 @@ public class CovidService {
 
 	private String latestDate;
 	private List<CovidData> covidData;
+	private int i = 1;
 
 	/**
 	 * Initialize latest data available
 	 */
 	public CovidService() {
 		this.latestDate = Helper.getYesterdayDate();
-
 	}
 
 	private void getLatestData() {
-		int i = 1;
 		while (!covidRepository.checkCollection(this.latestDate)) {
-			this.latestDate = Helper.getDate(++i);
+			this.latestDate = Helper.getDate(++this.i);
 		}
 	}
 
@@ -62,8 +61,8 @@ public class CovidService {
 	 * @return Latest data
 	 */
 	public List<CovidData> getData(boolean forceNew) {
+		this.getLatestData();
 		if (forceNew) {
-			this.getLatestData();
 			this.covidData = covidRepository.findAll(latestDate);
 			return this.covidData;
 		} else if (this.covidData != null) {
@@ -80,6 +79,7 @@ public class CovidService {
 	 * @return
 	 */
 	public List<CovidData> getDataByCountry(String country) {
+		this.getLatestData();
 		return covidRepository.findByCountry(country, latestDate);
 	}
 
@@ -91,6 +91,7 @@ public class CovidService {
 	 * @return
 	 */
 	public List<CovidData> getDataByState(String country, String state) {
+		this.getLatestData();
 		return covidRepository.findByState(country, state, latestDate);
 	}
 
@@ -101,6 +102,7 @@ public class CovidService {
 	 * @return
 	 */
 	public List<CovidData> getDataByRegion(String region) {
+		this.getLatestData();
 		return covidRepository.findByRegion(region, latestDate);
 	}
 
@@ -157,7 +159,7 @@ public class CovidService {
 	public List<Statistics> getWorldwideStats() {
 		List<CovidData> latestData = getData(false);
 		Map<String, Statistics> latestMap = this.getWorldwideStats(latestData);
-		List<CovidData> oldData = getData(Helper.getDate(2));
+		List<CovidData> oldData = getData(Helper.getDate(this.i + 1));
 		Map<String, Statistics> oldMap = this.getWorldwideStats(oldData);
 		latestMap = this.calculateDifference(latestMap, oldMap);
 		List<Statistics> stats = new ArrayList<Statistics>(latestMap.values());
@@ -165,12 +167,17 @@ public class CovidService {
 		return stats;
 	}
 
+	/**
+	 * Returns a map of statistics given a list of data
+	 * 
+	 * @param latestData
+	 * @return
+	 */
 	private Map<String, Statistics> getWorldwideStats(List<CovidData> data) {
 		Map<String, Statistics> map = new HashMap<>();
 		Statistics total = new Statistics("Total");
 		for (CovidData covid : data) {
 			String place = covid.getCountryRegion();
-			System.out.println(place);
 			if (map.containsKey(place)) {
 				Statistics stats = map.get(place);
 				total.addStats(covid);
@@ -193,19 +200,23 @@ public class CovidService {
 	 */
 	public List<Statistics> getCountryStats(String country) {
 		List<CovidData> latestData = getDataByCountry(country);
-		for (CovidData data : latestData) {
-			if (!data.getCountryRegion().contains("US")) {
-				System.out.println(data);
-			}
-		}
 		Map<String, Statistics> latestMap = getCountryStats(latestData);
-		List<CovidData> oldData = getDataByCountry(country, Helper.getDate(2));
+		List<CovidData> oldData = getDataByCountry(country, Helper.getDate(this.i + 1));
 		Map<String, Statistics> oldMap = getCountryStats(oldData);
 		latestMap = this.calculateDifference(latestMap, oldMap);
 		List<Statistics> stats = new ArrayList<Statistics>(latestMap.values());
 		Collections.sort(stats, new StatsConfirmedComparator());
 		return stats;
 	}
+
+	/**
+	 * 
+	 * Computes the difference between todays and yesterdays statistics
+	 * 
+	 * @param latestMap
+	 * @param oldMap
+	 * @return
+	 */
 
 	private Map<String, Statistics> calculateDifference(Map<String, Statistics> latestMap,
 			Map<String, Statistics> oldMap) {
@@ -221,6 +232,12 @@ public class CovidService {
 		return latestMap;
 	}
 
+	/**
+	 * Returns a map of statistics given a list of data
+	 * 
+	 * @param latestData
+	 * @return
+	 */
 	private Map<String, Statistics> getCountryStats(List<CovidData> latestData) {
 		Map<String, Statistics> map = new HashMap<>();
 		for (CovidData covid : latestData) {
