@@ -5,7 +5,10 @@ This project is made using Spring Boot, ReactJS and MongoDB
 Gets the latest data from John Hopkins Covid-19 database and provides a RESTful API to read the data. This data is stored in a MongoDB collection for each day and scheduled to run at 5:20 GMT 0:00 everyday to fetch new data from the database. 
 
 ### API
-1. /api/data
+1. 
+```
+/api/data
+```
 Gets the latest data of every country along with the difference between yesterday's data to show the increase/decrease between days
 Is ordered in increasing order of the confirmed cases
 ```
@@ -29,7 +32,10 @@ Is ordered in increasing order of the confirmed cases
   },
 ```
 
-2. /api/data/{country}
+2. 
+```
+/api/data/{country}
+```
 Gets the latest data of each state of the country provided as path variable
 Is ordered in increasing order of the confirmed cases
 ```
