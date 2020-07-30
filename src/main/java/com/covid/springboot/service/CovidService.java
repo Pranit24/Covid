@@ -37,16 +37,12 @@ public class CovidService {
 	private List<CovidData> covidData;
 	private int i = 1;
 
-	/**
-	 * Initialize latest data available
-	 */
-	public CovidService() {
-		this.latestDate = Helper.getYesterdayDate();
-	}
-
 	private void getLatestData() {
+		this.latestDate = Helper.getYesterdayDate();
 		while (!covidRepository.checkCollection(this.latestDate)) {
+			System.out.println("NOT FOUND" + this.latestDate);
 			this.latestDate = Helper.getDate(++this.i);
+			break;
 		}
 	}
 

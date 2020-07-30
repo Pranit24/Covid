@@ -129,7 +129,7 @@ public class DataParser {
 	@Scheduled(zone = "GMT+0:00", cron = "0 20 5 * * ?")
 	private void getLatestData() {
 		String latestDate = Helper.getYesterdayDate();
-//		String latestDate = "07-21-2020";
+//		String latestDate = "07-27-2020";
 		System.out.println("Getting latest data " + latestDate);
 		if (convertCSVToBean(latestDate)) {
 			covidService.setLatestDate(latestDate);
