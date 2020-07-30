@@ -59,13 +59,13 @@ Country can be double clicked in list view to view the cases per state
 
 #### Views 
 1. List View
-![alt text](https://github.com/Pranit24/Covid/blob/master/Images/ListView.png?raw=true)
+![Error displaying image](https://github.com/Pranit24/Covid/blob/master/Images/ListView.png?raw=true)
  
-2. Graph
-![alt text](https://github.com/Pranit24/Covid/blob/master/Images/GraphView.png?raw=true)
+2. Graph View
+![Error displaying image](https://github.com/Pranit24/Covid/blob/master/Images/GraphView.png?raw=true)
 
-3. Map
-![alt text](https://github.com/Pranit24/Covid/blob/master/Images/MapView.png?raw=true)
+3. Map View
+![Error displaying image](https://github.com/Pranit24/Covid/blob/master/Images/MapView.png?raw=true)
 
 
 ### Run app
