@@ -1,0 +1,64 @@
+{
+  "name": "covid_react",
+  "version": "0.1.0",
+  "private": true,
+  "proxy": "http://localhost:8080/",
+  "dependencies": {
+    "@babel/runtime": "^7.10.5",
+    "@nivo/bar": "^0.62.0",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.5.0",
+    "@testing-library/user-event": "^7.2.1",
+    "antd": "^4.4.3",
+    "axios": "^0.19.2",
+    "d3-scale": "^3.2.1",
+    "nivo": "^0.31.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-icons": "^3.10.0",
+    "react-router": "^5.2.0",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "3.4.1",
+    "react-simple-maps": "^2.1.2"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "dev": "webpack-dev-server --mode=development --port=3000",
+    "Rbuild": "react-scripts build",
+    "build": "webpack --mode production",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "@babel/core": "^7.10.5",
+    "@babel/plugin-transform-runtime": "^7.10.5",
+    "@babel/preset-env": "^7.10.4",
+    "@babel/preset-react": "^7.10.4",
+    "babel-core": "^6.26.3",
+    "babel-loader": "^8.1.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-0": "^6.24.1",
+    "html-loader": "^1.1.0",
+    "html-webpack-plugin": "^4.3.0",
+    "json-loader": "^0.5.7",
+    "svg-inline-loader": "^0.8.2",
+    "webpack-cli": "^3.3.12"
+  }
+}
