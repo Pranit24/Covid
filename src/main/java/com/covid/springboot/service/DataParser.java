@@ -94,6 +94,7 @@ public class DataParser {
 				covidRepository.save(data, date);
 			}
 		} catch (Exception e) {
+			System.out.println("Error adding data to mongodb collection " + date + "\n " + e);
 			logger.error("Error adding data to mongodb collection " + date);
 			logger.error(e);
 			return false;
@@ -165,6 +166,7 @@ public class DataParser {
 			e.printStackTrace();
 		}
 		logger.info(latestDate);
+		System.out.println("HERE");
 		if (convertCSVToBean(latestDate)) {
 			covidService.setLatestDate(latestDate);
 		}
