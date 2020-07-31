@@ -36,8 +36,6 @@ public class CovidRepositoryImpl implements CovidRepositoryCustomFunctions {
 	 * {@inheritDoc}
 	 */
 	public boolean checkCollection(String collectionName) {
-
-		System.out.println(mongoTemplate.getDb().getName());
 		if (!mongoTemplate.getCollectionNames().contains(collectionName)) {
 			return false;
 		}
