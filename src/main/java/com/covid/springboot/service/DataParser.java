@@ -150,6 +150,7 @@ public class DataParser {
 //	@Scheduled(cron = "0 5 20 * * ?")
 	private void getLatestData() {
 		String latestDate = Helper.getYesterdayDate();
+		logger.info("Downloading latest data ");
 //		String latestDate = "07-30-2020";
 		String link = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/";
 		try {
@@ -163,7 +164,7 @@ public class DataParser {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		logger.info("Getting latest data " + latestDate);
+		logger.info(latestDate);
 		if (convertCSVToBean(latestDate)) {
 			covidService.setLatestDate(latestDate);
 		}
