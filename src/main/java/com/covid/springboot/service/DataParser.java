@@ -125,8 +125,8 @@ public class DataParser {
 		return true;
 	}
 
-//	@Scheduled(fixedDelay = 500000)
-	@Scheduled(zone = "GMT+0:00", cron = "0 20 5 * * ?")
+	@Scheduled(fixedDelay = 86400000)
+	// @Scheduled(zone = "GMT+0:00", cron = "0 20 5 * * ?")
 	private void getLatestData() {
 		String latestDate = Helper.getYesterdayDate();
 //		String latestDate = "07-27-2020";
