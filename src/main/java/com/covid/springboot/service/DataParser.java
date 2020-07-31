@@ -9,8 +9,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -63,7 +63,8 @@ public class DataParser {
 				connection.disconnect();
 			}
 		} catch (IOException e) {
-			logger.warning("Error in getting the data");
+			logger.error("Error in getting the data");
+
 			e.printStackTrace();
 		}
 		return list;
@@ -94,7 +95,9 @@ public class DataParser {
 				covidRepository.save(data, date);
 			}
 		} catch (Exception e) {
-			logger.warning("Error adding data to mongodb collection " + date);
+			System.out.println("Error adding data to mongodb collection " + date + "\n " + e);
+			logger.error("Error adding data to mongodb collection " + date);
+			logger.error(e);
 			return false;
 		}
 		logger.info("Done updating mongodb collection " + date + "!");
