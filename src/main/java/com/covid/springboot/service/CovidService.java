@@ -40,9 +40,7 @@ public class CovidService {
 	private void getLatestData() {
 		this.latestDate = Helper.getYesterdayDate();
 		while (!covidRepository.checkCollection(this.latestDate)) {
-			System.out.println("NOT FOUND" + this.latestDate);
 			this.latestDate = Helper.getDate(++this.i);
-			break;
 		}
 	}
 

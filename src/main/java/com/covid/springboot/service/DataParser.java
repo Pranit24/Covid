@@ -106,6 +106,9 @@ public class DataParser {
 	 * Convert CSV file to Model class and save it in MongoDb
 	 */
 	private boolean convertCSVToBean(String date) {
+		if (covidRepository.checkCollection(date)) {
+			return true;
+		}
 		String link = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/";
 		List<String> list = getData(date, link);
 		try {
@@ -126,7 +129,7 @@ public class DataParser {
 	}
 
 	@Scheduled(fixedDelay = 86400000)
-	// @Scheduled(zone = "GMT+0:00", cron = "0 20 5 * * ?")
+//	@Scheduled(cron = "0 5 20 * * ?")
 	private void getLatestData() {
 		String latestDate = Helper.getYesterdayDate();
 //		String latestDate = "07-27-2020";
