@@ -1,6 +1,11 @@
 ## Covid Live Data
 This project is made using Spring Boot, ReactJS and MongoDB
 
+Site hosted on Heroku
+
+[Link](https://shrouded-wildwood-19827.herokuapp.com/)
+
+
 ## Spring Boot Backend
 Gets the latest data from John Hopkins Covid-19 database and provides a RESTful API to read the data. This data is stored in a MongoDB collection for each day and scheduled to run at 5:20 GMT 0:00 everyday to fetch new data from the database. 
 
