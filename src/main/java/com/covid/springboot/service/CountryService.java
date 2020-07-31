@@ -23,7 +23,6 @@ public class CountryService {
 	 * @param covidData
 	 */
 	public void createCountryCollection(List<CovidData> covidData) {
-		System.out.println(covidData.size());
 		int i = 0;
 		Set<String> set = new HashSet<>();
 		Set<Country> countrySet = new HashSet<>();
@@ -33,7 +32,6 @@ public class CountryService {
 				countrySet.add(new Country(String.valueOf(i++), data.getCountryRegion()));
 			}
 		}
-		System.out.println(countrySet.size());
 		countryRepository.saveAll(countrySet);
 	}
 

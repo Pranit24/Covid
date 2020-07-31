@@ -5,10 +5,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,8 @@ import com.opencsv.bean.HeaderColumnNameMappingStrategy;
  */
 @Service
 public class DataParser {
+
+	Logger logger = Logger.getLogger(DataParser.class.getName());
 
 	@Autowired
 	private CovidRepository covidRepository;
@@ -59,7 +63,7 @@ public class DataParser {
 				connection.disconnect();
 			}
 		} catch (IOException e) {
-			System.out.println("Error in getting the data");
+			logger.error("Error in getting the data");
 			e.printStackTrace();
 		}
 		return list;
@@ -75,17 +79,13 @@ public class DataParser {
 	 */
 	private boolean addDataToMongo(List<String> list, String date, boolean skipUS) {
 		// drop first row which has the csv column information
-		System.out.println("Adding latest data to MongoDb collection " + date + " ...");
+		logger.info("Adding latest data to MongoDb collection " + date + " ...");
 		final HeaderColumnNameMappingStrategy<CovidData> strategy = new HeaderColumnNameMappingStrategy<>();
 		strategy.setType(CovidData.class);
 		String csv = String.join("\n", list);
 		try {
-//			CsvToBeanBuilder<CovidData> beanBuilder = new CsvToBeanBuilder<>(new CSVReader(new StringReader(csv)));
 			CsvToBean<CovidData> csvToBean = new CsvToBeanBuilder<CovidData>(new CSVReader(new StringReader(csv)))
 					.withMappingStrategy(strategy).build();
-//			beanBuilder.withType(CovidData.class);
-			// build methods returns a list of Beans
-//			List<CovidData> covidData = beanBuilder.build().parse(); 
 			List<CovidData> covidData = csvToBean.parse();
 			for (CovidData data : covidData) {
 				if (skipUS && data.getCountryRegion().equals("US"))
@@ -94,11 +94,11 @@ public class DataParser {
 				covidRepository.save(data, date);
 			}
 		} catch (Exception e) {
-			System.out.println("Error adding data to mongodb collection " + date);
-			System.out.println(e);
+			logger.error("Error adding data to mongodb collection " + date);
+			logger.error(e);
 			return false;
 		}
-		System.out.println("Done updating mongodb collection " + date + "!");
+		logger.info("Done updating mongodb collection " + date + "!");
 		return true;
 	}
 
@@ -128,12 +128,42 @@ public class DataParser {
 		return true;
 	}
 
+	public static boolean doesURLExist(URL url) throws IOException {
+		// We want to check the current URL
+		HttpURLConnection.setFollowRedirects(false);
+
+		HttpURLConnection httpURLConnection = (HttpURLConnection) url.openConnection();
+
+		// We don't need to get data
+		httpURLConnection.setRequestMethod("HEAD");
+
+		// Some websites don't like programmatic access so pretend to be a browser
+		httpURLConnection.setRequestProperty("User-Agent",
+				"Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.1.2) Gecko/20090729 Firefox/3.5.2 (.NET CLR 3.5.30729)");
+		int responseCode = httpURLConnection.getResponseCode();
+
+		// We only accept response code 200
+		return responseCode == HttpURLConnection.HTTP_OK;
+	}
+
 	@Scheduled(fixedDelay = 86400000)
 //	@Scheduled(cron = "0 5 20 * * ?")
 	private void getLatestData() {
-		String latestDate = Helper.getYesterdayDate();
-//		String latestDate = "07-27-2020";
-		System.out.println("Getting latest data " + latestDate);
+//		String latestDate = Helper.getYesterdayDate();
+		String latestDate = "07-30-2020";
+		String link = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/";
+		try {
+			while (!doesURLExist(new URL(link + latestDate + ".csv"))) {
+				latestDate = Helper.getDate(++this.i);
+			}
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		logger.info("Getting latest data " + latestDate);
 		if (convertCSVToBean(latestDate)) {
 			covidService.setLatestDate(latestDate);
 		}
