@@ -149,8 +149,8 @@ public class DataParser {
 	@Scheduled(fixedDelay = 86400000)
 //	@Scheduled(cron = "0 5 20 * * ?")
 	private void getLatestData() {
-//		String latestDate = Helper.getYesterdayDate();
-		String latestDate = "07-30-2020";
+		String latestDate = Helper.getYesterdayDate();
+//		String latestDate = "07-30-2020";
 		String link = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/";
 		try {
 			while (!doesURLExist(new URL(link + latestDate + ".csv"))) {
