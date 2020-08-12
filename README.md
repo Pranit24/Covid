@@ -3,7 +3,6 @@ This project is made using Spring Boot, ReactJS and MongoDB
 
 Site hosted on Heroku
 
-[Link](https://shrouded-wildwood-19827.herokuapp.com/)
 
 
 ## Spring Boot Backend
